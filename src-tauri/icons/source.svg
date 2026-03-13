@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background gradient: deep indigo to near-black -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0d0b24"/>
+    </linearGradient>
+    <!-- Left page: darker on the outer edge, bright near spine -->
+    <linearGradient id="pageL" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d4c49a"/>
+      <stop offset="100%" stop-color="#fdf6e3"/>
+    </linearGradient>
+    <!-- Right page: bright near spine, darker on the outer edge -->
+    <linearGradient id="pageR" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fdf6e3"/>
+      <stop offset="100%" stop-color="#d4c49a"/>
+    </linearGradient>
+    <!-- Spine: bright gold -->
+    <linearGradient id="spine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#c87000"/>
+      <stop offset="40%"  stop-color="#fcd34d"/>
+      <stop offset="60%"  stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#c87000"/>
+    </linearGradient>
+    <!-- Book drop shadow -->
+    <filter id="bookShadow" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="20" stdDeviation="28"
+                    flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+    <!-- Inner glow for background -->
+    <radialGradient id="glow" cx="50%" cy="46%" r="48%">
+      <stop offset="0%"   stop-color="#3730a3" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#3730a3" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="1024" height="1024" rx="196" fill="url(#bg)"/>
+  <!-- Subtle central glow -->
+  <rect width="1024" height="1024" rx="196" fill="url(#glow)"/>
+
+  <!-- ── Open Book ── -->
+  <g filter="url(#bookShadow)">
+    <!-- Left page: slightly curved outer edge -->
+    <path d="
+      M 158,258
+      Q 142,482 158,722
+      L 506,700
+      L 512,240
+      Z"
+      fill="url(#pageL)"/>
+
+    <!-- Right page: mirror of left -->
+    <path d="
+      M 866,258
+      Q 882,482 866,722
+      L 518,700
+      L 512,240
+      Z"
+      fill="url(#pageR)"/>
+
+    <!-- Spine (narrow vertical band) -->
+    <path d="
+      M 506,700 L 506,240
+      Q 512,235 518,240
+      L 518,700
+      Q 512,705 506,700 Z"
+      fill="url(#spine)"/>
+
+    <!-- Bottom page-edge shadow (adds depth) -->
+    <path d="
+      M 158,722 Q 335,748 506,700
+      Q 512,705 518,700
+      Q 689,748 866,722
+      L 866,740 Q 689,768 518,718
+      Q 512,723 506,718
+      Q 335,768 158,740 Z"
+      fill="#000000" opacity="0.18"/>
+  </g>
+
+  <!-- ── Left page: text lines ── -->
+  <g stroke="#9a7d50" stroke-width="16" stroke-linecap="round" opacity="0.7">
+    <!-- Chapter heading (shorter, slightly bolder) -->
+    <line x1="214" y1="346" x2="398" y2="339" stroke-width="18"/>
+    <!-- Body lines -->
+    <line x1="209" y1="406" x2="482" y2="398"/>
+    <line x1="206" y1="460" x2="482" y2="453"/>
+    <line x1="204" y1="514" x2="482" y2="507"/>
+    <line x1="203" y1="568" x2="482" y2="561"/>
+    <line x1="203" y1="622" x2="482" y2="615"/>
+    <!-- Last partial line -->
+    <line x1="204" y1="672" x2="330" y2="667"/>
+  </g>
+
+  <!-- ── Right page: text lines ── -->
+  <g stroke="#9a7d50" stroke-width="16" stroke-linecap="round" opacity="0.7">
+    <!-- Chapter heading -->
+    <line x1="626" y1="339" x2="810" y2="346" stroke-width="18"/>
+    <!-- Body lines -->
+    <line x1="542" y1="398" x2="815" y2="406"/>
+    <line x1="542" y1="453" x2="818" y2="460"/>
+    <line x1="542" y1="507" x2="820" y2="514"/>
+    <line x1="542" y1="561" x2="821" y2="568"/>
+    <line x1="542" y1="615" x2="821" y2="622"/>
+    <!-- Last partial line -->
+    <line x1="694" y1="667" x2="820" y2="672"/>
+  </g>
+
+  <!-- ── Spine highlight (thin bright line for 3-D effect) ── -->
+  <line x1="512" y1="242" x2="512" y2="698"
+        stroke="#ffe680" stroke-width="3" opacity="0.6"/>
+</svg>
