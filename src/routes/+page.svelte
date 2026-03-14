@@ -75,10 +75,43 @@
         pageCount = pages.length;
       }
       await preloadVisible();
+      await restorePosition();
     } catch (e) {
       errorMsg = String(e);
     } finally {
       loading = false;
+    }
+  }
+
+  // 保存済みの閲覧位置を復元する
+  async function restorePosition() {
+    if (!filePath) return;
+    const saved: string = await invoke("load_position", { filePath });
+    if (!saved) return;
+    if (fileType === "zip") {
+      const idx = zipPages.indexOf(saved);
+      if (idx >= 0) {
+        currentIndex = spreadMode && idx % 2 !== 0 ? idx - 1 : idx;
+        await preloadVisible();
+      }
+    } else if (fileType === "pdf") {
+      const idx = parseInt(saved, 10);
+      if (!isNaN(idx) && idx > 0 && idx < pageCount) {
+        currentIndex = spreadMode && idx % 2 !== 0 ? idx - 1 : idx;
+        await preloadVisible();
+      }
+    }
+  }
+
+  // 現在の閲覧位置を保存する
+  async function savePosition() {
+    if (!filePath) return;
+    const position =
+      fileType === "zip"
+        ? (zipPages[currentIndex] ?? "")
+        : String(currentIndex);
+    if (position) {
+      await invoke("save_position", { filePath, position });
     }
   }
 
@@ -156,6 +189,7 @@
     if (!canNext) return;
     currentIndex = spreadMode ? currentIndex + 2 : currentIndex + 1;
     await preloadVisible();
+    await savePosition();
   }
 
   async function goPrev() {
@@ -167,6 +201,7 @@
       currentIndex--;
     }
     await preloadVisible();
+    await savePosition();
   }
 
   function handleKeydown(e: KeyboardEvent) {

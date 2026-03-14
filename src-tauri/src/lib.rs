@@ -1,6 +1,7 @@
 use base64::{engine::general_purpose, Engine as _};
+use std::collections::HashMap;
 use std::io::{Read, Seek};
-use tauri::{Emitter, Listener};
+use tauri::{Emitter, Listener, Manager};
 
 #[derive(serde::Serialize)]
 struct PageData {
@@ -146,6 +147,48 @@ fn get_file_base64(path: String) -> Result<String, String> {
     Ok(general_purpose::STANDARD.encode(&data))
 }
 
+/// 閲覧位置を保存する。
+/// file_path をキー、position（ZIPは仮想パス文字列、PDFは0-indexed番号の文字列）を値とする。
+/// 保存先: %APPDATA%\comic-viewer\positions.json
+#[tauri::command]
+fn save_position(app: tauri::AppHandle, file_path: String, position: String) -> Result<(), String> {
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let json_path = dir.join("positions.json");
+
+    let mut map: HashMap<String, String> = if json_path.exists() {
+        let text = std::fs::read_to_string(&json_path).map_err(|e| e.to_string())?;
+        serde_json::from_str(&text).unwrap_or_default()
+    } else {
+        HashMap::new()
+    };
+
+    map.insert(file_path, position);
+    let text = serde_json::to_string(&map).map_err(|e| e.to_string())?;
+    std::fs::write(&json_path, text).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// 閲覧位置を読み込む。保存がなければ空文字列を返す。
+#[tauri::command]
+fn load_position(app: tauri::AppHandle, file_path: String) -> Result<String, String> {
+    let json_path = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("positions.json");
+
+    if !json_path.exists() {
+        return Ok(String::new());
+    }
+    let text = std::fs::read_to_string(&json_path).map_err(|e| e.to_string())?;
+    let map: HashMap<String, String> = serde_json::from_str(&text).unwrap_or_default();
+    Ok(map.get(&file_path).cloned().unwrap_or_default())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // 起動引数の1番目をファイルパスとして取得（"--"で始まるフラグは除外）
@@ -166,7 +209,13 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![open_zip, get_zip_page, get_file_base64])
+        .invoke_handler(tauri::generate_handler![
+            open_zip,
+            get_zip_page,
+            get_file_base64,
+            save_position,
+            load_position
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
