@@ -90,6 +90,21 @@ src-tauri/target/i686-pc-windows-msvc/release/bundle/
   nsis/ comic-viewer_x.y.z_x86-setup.exe
 ```
 
+## Building via GitHub Actions
+
+As an alternative to building locally, you can use GitHub Actions to produce installers for all supported architectures without setting up a local toolchain.
+
+The workflow at `.github/workflows/release.yml` runs automatically when a version tag is pushed, and builds x86, x64, and ARM64 installers in parallel — each on the appropriate runner. The resulting `.msi` and `-setup.exe` files are uploaded directly to the GitHub release.
+
+To trigger a release build:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The finished installers will appear under the corresponding release on the [Releases](https://github.com/Futoshi-SSK/Comic-Viewer/releases) page once all jobs complete.
+
 ## Tech Stack
 
 - **Frontend**: SvelteKit 5, TypeScript, Vite
