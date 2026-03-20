@@ -43,13 +43,25 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build -- --target ${{ matrix.target }}
 
-      - name: Upload installer artifacts
+      - name: Create symlinks in releases folder
+        shell: pwsh
+        run: |
+          $bundleDir = Resolve-Path "src-tauri/target/${{ matrix.target }}/release/bundle"
+          New-Item -ItemType Directory -Force -Path "releases/${{ matrix.arch }}"
+          foreach ($sub in @("nsis", "msi")) {
+            $src = Join-Path $bundleDir $sub
+            if (Test-Path $src) {
+              New-Item -ItemType SymbolicLink `
+                -Path "releases/${{ matrix.arch }}/$sub" `
+                -Target $src
+            }
+          }
+
+      - name: Upload releases artifacts
         uses: actions/upload-artifact@v4
         with:
           name: comic-viewer-windows-${{ matrix.arch }}
-          path: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
-            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
+          path: releases/${{ matrix.arch }}/
           if-no-files-found: warn
 
   collect:
