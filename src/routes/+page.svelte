@@ -2,6 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import { open as openDialog } from "@tauri-apps/plugin-dialog";
   import { getCurrentWindow } from "@tauri-apps/api/window";
+  import { getVersion } from "@tauri-apps/api/app";
   import { onMount } from "svelte";
   import { listen, emit } from "@tauri-apps/api/event";
   import * as pdfjsLib from "pdfjs-dist";
@@ -22,6 +23,8 @@
   let loading = $state(false);
   let errorMsg = $state<string | null>(null);
   let isDragging = $state(false);
+  let showAbout = $state(false);
+  let appVersion = $state("");
 
   // RTL: currentIndex is the RIGHT page, currentIndex+1 is the LEFT page
   let rightIdx = $derived(currentIndex);
@@ -123,6 +126,8 @@
 
   // 起動時にバックエンドからファイルパスが送られてきたら自動オープン
   onMount(async () => {
+    appVersion = await getVersion();
+
     // "open-file" イベントを先に登録してから準備完了を通知する
     const unlisten = await listen<string>("open-file", async (event) => {
       unlisten();
@@ -315,6 +320,7 @@
         <span class="page-info">{pageLabel}</span>
       {/if}
       <span class="nav-hint">← 次へ　→ 前へ</span>
+      <button class="about-btn" onclick={() => showAbout = true}>このソフトについて</button>
     </div>
     {#if filePath && pageCount > 0}
       <div class="file-info-row">
@@ -378,6 +384,18 @@
     {/if}
   </div>
 </div>
+
+{#if showAbout}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="modal-overlay" onclick={() => showAbout = false}>
+    <div class="modal" onclick={(e) => e.stopPropagation()}>
+      <h2>Comic Viewer</h2>
+      <p>バージョン: {appVersion}</p>
+      <button onclick={() => showAbout = false}>閉じる</button>
+    </div>
+  </div>
+{/if}
 
 <style>
   :global(body),
@@ -629,5 +647,39 @@
 
   .app.dragging .viewer {
     pointer-events: none;
+  }
+
+  .about-btn {
+    margin-left: auto;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 32px 40px;
+    text-align: center;
+    min-width: 260px;
+  }
+
+  .modal h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+    color: #eee;
+  }
+
+  .modal p {
+    margin: 0 0 24px;
+    color: #bbb;
   }
 </style>
