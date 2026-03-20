@@ -22,11 +22,52 @@ A desktop comic and manga reader built with Tauri + SvelteKit + Rust.
 | Click right half | Previous page |
 | Mouse wheel | Scroll through pages |
 
+## Supported Platforms
+
+Comic Viewer supports the following Windows architectures:
+
+| Architecture | Rust Target | Description |
+|---|---|---|
+| x86 (32-bit) | `i686-pc-windows-msvc` | 32-bit Intel/AMD |
+| x64 (64-bit) | `x86_64-pc-windows-msvc` | 64-bit Intel/AMD |
+| ARM64 | `aarch64-pc-windows-msvc` | Windows on ARM |
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18+)
 - [Rust](https://www.rust-lang.org/tools/install) + Cargo
-- [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) (Windows)
+- [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) (Windows) — include the **Desktop development with C++** workload
+
+## Switching the Build Target
+
+The default build target is defined in `src-tauri/.cargo/config.toml`:
+
+```toml
+[build]
+target = "i686-pc-windows-msvc"
+```
+
+Change the `target` value to build for a different architecture:
+
+| Architecture | Target value |
+|---|---|
+| x86 (32-bit) | `i686-pc-windows-msvc` |
+| x64 (64-bit) | `x86_64-pc-windows-msvc` |
+| ARM64 | `aarch64-pc-windows-msvc` |
+
+You also need to install the corresponding Rust target if not already present:
+
+```bash
+rustup target add i686-pc-windows-msvc     # x86
+rustup target add x86_64-pc-windows-msvc   # x64
+rustup target add aarch64-pc-windows-msvc  # ARM64
+```
+
+Alternatively, you can override the target at build time without editing the file:
+
+```bash
+npm run tauri build -- --target x86_64-pc-windows-msvc
+```
 
 ## Development
 
@@ -41,7 +82,13 @@ npm run tauri dev
 npm run tauri build
 ```
 
-The installer will be output to `src-tauri/target/release/bundle/`.
+The installer will be output to `src-tauri/target/<target>/release/bundle/`.
+For example, an x86 build produces:
+```
+src-tauri/target/i686-pc-windows-msvc/release/bundle/
+  msi/  comic-viewer_x.y.z_x86_en-US.msi
+  nsis/ comic-viewer_x.y.z_x86-setup.exe
+```
 
 ## Tech Stack
 
